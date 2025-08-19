@@ -2,6 +2,7 @@ import { Document } from '@langchain/core/documents'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { QdrantVectorStore } from '@langchain/qdrant'
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
+import { revalidatePath } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
@@ -21,7 +22,6 @@ export async function POST(req: NextRequest) {
     })
     const chunks = await splitter.splitDocuments(docs)
 
-    // Embeddings
     const embeddings = new OpenAIEmbeddings({
       model: 'text-embedding-3-small',
     })
@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
         chunks: chunks.length,
       },
     })
+    revalidatePath('/')
 
     return NextResponse.json({
       success: true,

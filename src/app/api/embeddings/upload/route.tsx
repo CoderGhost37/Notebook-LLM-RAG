@@ -4,6 +4,7 @@ import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { QdrantVectorStore } from '@langchain/qdrant'
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
+import { revalidatePath } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
 import type { FileType } from '@/generated/prisma'
 import { prisma } from '@/lib/db'
@@ -20,7 +21,6 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    // Pick loader based on extension
     const ext = file.name.split('.').pop()?.toLowerCase()
     let loader: any
 
@@ -41,7 +41,6 @@ export async function POST(req: NextRequest) {
     })
     const chunks = await splitter.splitDocuments(docs)
 
-    // Embeddings
     const embeddings = new OpenAIEmbeddings({
       model: 'text-embedding-3-small',
     })
@@ -59,6 +58,7 @@ export async function POST(req: NextRequest) {
         chunks: chunks.length,
       },
     })
+    revalidatePath('/')
 
     return NextResponse.json({
       success: true,

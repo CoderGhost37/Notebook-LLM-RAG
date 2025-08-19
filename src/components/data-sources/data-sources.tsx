@@ -1,31 +1,22 @@
 'use client'
 
-import {
-  AlertCircle,
-  Check,
-  File,
-  FileSpreadsheet,
-  FileText,
-  Globe,
-  Loader2,
-  Search,
-  Trash2,
-  Type,
-} from 'lucide-react'
-import { useState } from 'react'
+import { File, FileSpreadsheet, FileText, Globe, Loader2, Search, Trash2, Type } from 'lucide-react'
+import { useState, useTransition } from 'react'
+import { toast } from 'sonner'
+import { deleteDataSource } from '@/app/actions'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import type { DataSource } from '@/constant/type'
+import type { DataSource } from '@/generated/prisma'
 import { AddSourceModal } from '../add-source-modal/add-source-modal'
+import { ModeToggle } from '../theme/theme-toggle'
 
 export function DataSources({ data }: { data: DataSource[] }) {
   const [dataSources, setDataSources] = useState<DataSource[]>(data)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterType, setFilterType] = useState<'all' | 'file' | 'url' | 'text'>('all')
-  const [uploadProgress, _setUploadProgress] = useState<{ [key: string]: number }>({})
 
   const filteredDataSources = dataSources.filter((source) => {
     const matchesSearch = source.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -37,7 +28,7 @@ export function DataSources({ data }: { data: DataSource[] }) {
     setDataSources((prev) => prev.filter((source) => source.id !== id))
   }
 
-  const getSourceIcon = (type: string, fileType?: string) => {
+  const getSourceIcon = (type: string, fileType: string | null) => {
     if (type === 'file' && fileType) {
       switch (fileType) {
         case 'pdf':
@@ -76,38 +67,16 @@ export function DataSources({ data }: { data: DataSource[] }) {
     }
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'ready':
-        return <Check className="h-3 w-3 text-green-500" />
-      case 'processing':
-        return <Loader2 className="h-3 w-3 animate-spin text-yellow-500" />
-      case 'error':
-        return <AlertCircle className="h-3 w-3 text-red-500" />
-      default:
-        return null
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'ready':
-        return 'Ready'
-      case 'processing':
-        return 'Processing...'
-      case 'error':
-        return 'Error'
-      default:
-        return 'Unknown'
-    }
-  }
   return (
     <div className="flex flex-col h-full">
       {/* Fixed Header */}
       <div className="p-4 border-b border-border flex-shrink-0">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between gap-4 mb-4">
           <h2 className="text-lg font-semibold text-foreground">Data Sources</h2>
-          <AddSourceModal />
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+            <AddSourceModal />
+          </div>
         </div>
         {/* Search and Filter */}
         <div className="space-y-3">
@@ -168,7 +137,10 @@ export function DataSources({ data }: { data: DataSource[] }) {
             </div>
           ) : (
             filteredDataSources.map((source) => (
-              <Card key={source.id} className="p-3 hover:bg-accent/50 transition-colors">
+              <Card
+                key={source.id}
+                className="p-3 hover:bg-accent/50 transition-colors max-w-[350px]"
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-start gap-2 flex-1 min-w-0">
                     <div className="mt-0.5">{getSourceIcon(source.type, source.fileType)}</div>
@@ -177,7 +149,6 @@ export function DataSources({ data }: { data: DataSource[] }) {
                         <p className="text-sm font-medium text-foreground truncate flex-1">
                           {source.name}
                         </p>
-                        {getStatusIcon(source.status)}
                       </div>
 
                       <div className="flex items-center gap-2 mb-2">
@@ -187,44 +158,18 @@ export function DataSources({ data }: { data: DataSource[] }) {
                         >
                           {source.type}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {getStatusText(source.status)}
+
+                        <span className="flex items-center justify-between text-xs text-muted-foreground">
+                          {source.chunks && <span>{source.chunks} chunks</span>}
                         </span>
                       </div>
 
-                      {uploadProgress[source.id] && (
-                        <div className="mb-2">
-                          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                            <span>Uploading...</span>
-                            <span>{Math.round(uploadProgress[source.id])}%</span>
-                          </div>
-                          <div className="w-full bg-muted rounded-full h-1.5">
-                            <div
-                              className="bg-primary h-1.5 rounded-full transition-all duration-300"
-                              style={{ width: `${uploadProgress[source.id]}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{source.size || 'No size'}</span>
-                        {source.chunks && <span>{source.chunks} chunks</span>}
-                      </div>
-
                       <div className="text-xs text-muted-foreground mt-1">
-                        Added {new Date(source.addedAt).toLocaleDateString()}
+                        Added {new Date(source.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                    onClick={() => removeDataSource(source.id)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
+                  <DeleteDataSource id={source.id} removeSource={removeDataSource} />
                 </div>
               </Card>
             ))
@@ -232,5 +177,39 @@ export function DataSources({ data }: { data: DataSource[] }) {
         </div>
       </ScrollArea>
     </div>
+  )
+}
+
+function DeleteDataSource({
+  id,
+  removeSource,
+}: {
+  id: string
+  removeSource: (id: string) => void
+}) {
+  const [isPending, startTransition] = useTransition()
+
+  const handleDelete = () => {
+    startTransition(() => {
+      deleteDataSource(id).then((res) => {
+        if (res.success) {
+          toast.success(res.message)
+          removeSource(id)
+        } else {
+          toast.error(res.message)
+        }
+      })
+    })
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={handleDelete}
+      className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+    >
+      {isPending ? <Loader2 className="animate-spin" /> : <Trash2 className="h-3 w-3" />}
+    </Button>
   )
 }
