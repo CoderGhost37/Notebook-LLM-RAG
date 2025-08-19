@@ -8,7 +8,6 @@ import {
   FileText,
   Globe,
   Loader2,
-  Plus,
   Search,
   Trash2,
   Type,
@@ -20,6 +19,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { DataSource } from '@/constant/type'
+import { AddSourceModal } from '../add-source-modal/add-source-modal'
 
 export function DataSources({ data }: { data: DataSource[] }) {
   const [dataSources, setDataSources] = useState<DataSource[]>(data)
@@ -107,10 +107,7 @@ export function DataSources({ data }: { data: DataSource[] }) {
       <div className="p-4 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-foreground">Data Sources</h2>
-          <Button>
-            <Plus className="h-4 w-4" />
-            Add Source
-          </Button>
+          <AddSourceModal />
         </div>
         {/* Search and Filter */}
         <div className="space-y-3">
