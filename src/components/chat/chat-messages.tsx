@@ -3,7 +3,7 @@
 import type { UIMessage } from 'ai'
 import { Bot, Copy, RefreshCw, User } from 'lucide-react'
 import Markdown from 'markdown-to-jsx'
-
+import { useEffect, useRef } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -17,6 +17,12 @@ interface ChatMessagesProps {
 }
 
 export function ChatMessages({ messages, status, regenerate }: ChatMessagesProps) {
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, status])
+
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -121,6 +127,8 @@ export function ChatMessages({ messages, status, regenerate }: ChatMessagesProps
             </div>
           ))}
           {status === 'submitted' && <MessageLoading />}
+
+          <div ref={messagesEndRef} />
         </div>
       </div>
     </ScrollArea>
