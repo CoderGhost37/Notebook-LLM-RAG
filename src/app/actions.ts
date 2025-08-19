@@ -1,9 +1,9 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/db'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { QdrantVectorStore } from '@langchain/qdrant'
+import { revalidatePath } from 'next/cache'
+import { prisma } from '@/lib/db'
 
 export async function getDataSources() {
   try {
@@ -25,7 +25,7 @@ export async function deleteDataSource(id: string) {
       where: { id },
       select: {
         chunkIds: true,
-      }
+      },
     })
 
     if (!dataSource) {
@@ -39,14 +39,11 @@ export async function deleteDataSource(id: string) {
       model: 'text-embedding-3-small',
     })
 
-    const vectorStore = await QdrantVectorStore.fromExistingCollection(
-      embeddings,
-      {
-        url: process.env.QDRANT_URL,
-        collectionName: 'notebook-llm-rag',
-      }
-    )
-    await vectorStore.delete({ ids: dataSource.chunkIds });
+    const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, {
+      url: process.env.QDRANT_URL,
+      collectionName: 'notebook-llm-rag',
+    })
+    await vectorStore.delete({ ids: dataSource.chunkIds })
     await prisma.dataSource.delete({
       where: { id },
     })

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { CheerioWebBaseLoader } from '@langchain/community/document_loaders/web/cheerio'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { QdrantVectorStore } from '@langchain/qdrant'
@@ -5,7 +6,6 @@ import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 import { revalidatePath } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { randomUUID } from 'crypto'
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
         ...chunk,
         metadata: {
           ...chunk.metadata,
-          id
+          id,
         },
       }
     })

@@ -13,7 +13,7 @@ export function ChatWindow() {
 
   const [input, setInput] = useState<string>('')
 
-  const { messages, sendMessage, status, regenerate } = useChat({
+  const { messages, sendMessage, status, regenerate, setMessages } = useChat({
     transport: new DefaultChatTransport({
       api: '/api/chat',
     }),
@@ -30,6 +30,21 @@ export function ChatWindow() {
       },
     ],
   })
+
+  const clearChat = () => {
+    setMessages([
+      {
+        id: 'initial',
+        role: 'assistant',
+        parts: [
+          {
+            type: 'text',
+            text: 'Hello! How can I help you today?',
+          },
+        ],
+      },
+    ])
+  }
 
   const handleChangeInput = (val: string) => {
     setInput(val)
@@ -63,7 +78,7 @@ export function ChatWindow() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <ChatHeader />
+      <ChatHeader clearChat={clearChat} />
 
       <ChatMessages messages={messages} status={status} regenerate={regenerate} />
       <div ref={messagesEndRef} />

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { CSVLoader } from '@langchain/community/document_loaders/fs/csv'
 import { DocxLoader } from '@langchain/community/document_loaders/fs/docx'
 import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf'
@@ -8,7 +9,6 @@ import { revalidatePath } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
 import type { FileType } from '@/generated/prisma'
 import { prisma } from '@/lib/db'
-import { randomUUID } from 'crypto'
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
         ...chunk,
         metadata: {
           ...chunk.metadata,
-          id
+          id,
         },
       }
     })
