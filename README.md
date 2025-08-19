@@ -1,3 +1,42 @@
+# 📖 Retrieval Augmented Generation (RAG) Chatbot  
+
+This project is a **RAG-based chatbot** built with **Next.js**, **OpenAI**, **Qdrant**, and **Postgres**.  
+It allows users to **upload documents** (`PDF`, `CSV`, `DOC`), provide a **website URL**, or enter **raw text**, and then **chat with them** in natural language.  
+
+Live URL: https://notebook-llm-rag.vercel.app/
+
+## ⚙️ How It Works  
+1. Users upload files, enter text, or provide a website URL.  
+2. The content is **chunked** and converted into **vector embeddings** using **OpenAI**.  
+3. Embeddings are stored in **Qdrant Vector DB** for semantic search.  
+4. Metadata and chat history are stored in **Postgres DB**.  
+5. On each query, relevant chunks are retrieved from Qdrant and passed to **OpenAI**, which generates accurate and context-aware responses.  
+
+## ✨ Features  
+- Upload files (`.pdf`, `.csv`, `.doc`)  
+- Add **website URLs** or paste **raw text**  
+- Store embeddings in **Qdrant DB**  
+- Persist metadata & chat history in **Postgres DB**  
+- Chat with your custom knowledge base in real time  
+- Built on **Next.js App Router**  
+
+## 🔑 Environment Variables  
+
+Create a `.env.local` file in the root of your project with the following variables:  
+
+```env
+# OpenAI
+OPENAI_API_KEY=your_openai_api_key
+
+# Qdrant configuration
+QDRANT_URL=your_qdrant_instance_url   # e.g., http://localhost:6333 or cloud URL
+QDRANT_API_KEY=your_qdrant_api_key    # if authentication is enabled
+
+# Postgres database
+DATABASE_URL=postgresql://user:password@localhost:5432/yourdb
+```
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
