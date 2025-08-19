@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { DataSource } from '@/generated/prisma'
 import { AddSourceModal } from '../add-source-modal/add-source-modal'
-import { ModeToggle } from '../theme/theme-toggle'
 
 export function DataSources({ data }: { data: DataSource[] }) {
   const [dataSources, setDataSources] = useState<DataSource[]>(data)
@@ -73,10 +72,7 @@ export function DataSources({ data }: { data: DataSource[] }) {
       <div className="p-4 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between gap-4 mb-4">
           <h2 className="text-lg font-semibold text-foreground">Data Sources</h2>
-          <div className="flex items-center gap-2">
-            <ModeToggle />
-            <AddSourceModal />
-          </div>
+          <AddSourceModal />
         </div>
         {/* Search and Filter */}
         <div className="space-y-3">
