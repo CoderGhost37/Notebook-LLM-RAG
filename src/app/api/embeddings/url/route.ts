@@ -5,6 +5,7 @@ import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 import { revalidatePath } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { randomUUID } from 'crypto'
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,11 +25,22 @@ export async function POST(req: NextRequest) {
     })
     const chunks = await splitter.splitDocuments(docs)
 
+    const chunksWithIds = chunks.map((chunk) => {
+      const id = randomUUID()
+      return {
+        ...chunk,
+        metadata: {
+          ...chunk.metadata,
+          id
+        },
+      }
+    })
+
     const embeddings = new OpenAIEmbeddings({
       model: 'text-embedding-3-small',
     })
 
-    await QdrantVectorStore.fromDocuments(chunks, embeddings, {
+    await QdrantVectorStore.fromDocuments(chunksWithIds, embeddings, {
       url: process.env.QDRANT_URL,
       collectionName: 'notebook-llm-rag',
     })
@@ -38,6 +50,7 @@ export async function POST(req: NextRequest) {
         name: url,
         type: 'url',
         chunks: chunks.length,
+        chunkIds: chunksWithIds.map((chunk) => chunk.metadata.id),
       },
     })
     revalidatePath('/')

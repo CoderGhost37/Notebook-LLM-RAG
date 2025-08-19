@@ -13,9 +13,8 @@ model DataSource {
   name      String
   type      SourceType
   fileType  FileType?
-  url       String?
-  text      String?
-  chunks    Int?
+  chunks    Int
+  chunkIds  String[]
   createdAt DateTime   @default(now())
 }
 

@@ -2,6 +2,7 @@ import { Document } from '@langchain/core/documents'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { QdrantVectorStore } from '@langchain/qdrant'
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
+import { randomUUID } from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
@@ -22,11 +23,22 @@ export async function POST(req: NextRequest) {
     })
     const chunks = await splitter.splitDocuments(docs)
 
+    const chunksWithIds = chunks.map((chunk) => {
+      const id = randomUUID()
+      return new Document({
+        pageContent: chunk.pageContent,
+        metadata: {
+          ...chunk.metadata,
+          id,
+        },
+      })
+    })
+
     const embeddings = new OpenAIEmbeddings({
       model: 'text-embedding-3-small',
     })
 
-    await QdrantVectorStore.fromDocuments(chunks, embeddings, {
+    await QdrantVectorStore.fromDocuments(chunksWithIds, embeddings, {
       url: process.env.QDRANT_URL,
       collectionName: 'notebook-llm-rag',
     })
@@ -36,6 +48,7 @@ export async function POST(req: NextRequest) {
         name: text.substring(0, 50),
         type: 'text',
         chunks: chunks.length,
+        chunkIds: chunksWithIds.map((c) => c.metadata.id),
       },
     })
     revalidatePath('/')
