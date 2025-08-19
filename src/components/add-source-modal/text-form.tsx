@@ -3,8 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
-
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -17,10 +17,10 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 
 const formSchema = z.object({
-  text: z.string().min(2).max(1000),
+  text: z.string(),
 })
 
-export function TextForm() {
+export function TextForm({ onClose }: { onClose: () => void }) {
   const [isPending, startTransition] = useTransition()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -30,8 +30,20 @@ export function TextForm() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    startTransition(() => {
-      console.log(values)
+    startTransition(async () => {
+      try {
+        const formData = new FormData()
+        formData.append('text', values.text)
+
+        await fetch('/api/embeddings/text', {
+          method: 'POST',
+          body: formData,
+        })
+        toast.success('Text added successfully!')
+        onClose()
+      } catch {
+        toast.error('Failed to add text')
+      }
     })
   }
 

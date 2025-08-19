@@ -3,8 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
-
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -21,7 +21,7 @@ const formSchema = z.object({
   url: z.string().url(),
 })
 
-export function UrlForm() {
+export function UrlForm({ onClose }: { onClose: () => void }) {
   const [isPending, startTransition] = useTransition()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -31,8 +31,20 @@ export function UrlForm() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    startTransition(() => {
-      console.log(values)
+    startTransition(async () => {
+      try {
+        const formData = new FormData()
+        formData.append('url', values.url)
+
+        await fetch('/api/embeddings/url', {
+          method: 'POST',
+          body: formData,
+        })
+        toast.success('URL added successfully!')
+        onClose()
+      } catch {
+        toast.error('Failed to add URL')
+      }
     })
   }
 

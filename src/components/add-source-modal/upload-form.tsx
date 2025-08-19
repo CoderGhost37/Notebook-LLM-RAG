@@ -5,6 +5,7 @@ import { AlignHorizontalDistributeCenter, FileText, FileType } from 'lucide-reac
 import { useTransition } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import * as z from 'zod'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -33,7 +34,7 @@ export const uploadSchema = z.object({
 
 type UploadFormValues = z.infer<typeof uploadSchema>
 
-export function UploadForm() {
+export function UploadForm({ onClose }: { onClose: () => void }) {
   const [isPending, startTransition] = useTransition()
   const form = useForm<UploadFormValues>({
     resolver: zodResolver(uploadSchema),
@@ -64,16 +65,16 @@ export function UploadForm() {
     startTransition(async () => {
       try {
         const formData = new FormData()
-        formData.append('pdf', values.file)
+        formData.append('file', values.file)
 
-        await fetch('/api/upload-pdf', {
+        await fetch('/api/embeddings/upload', {
           method: 'POST',
           body: formData,
         })
-        alert('File uploaded successfully!')
-      } catch (err) {
-        console.error(err)
-        alert('Upload failed')
+        toast.success('File uploaded successfully!')
+        onClose()
+      } catch {
+        toast.error('Upload failed')
       }
     })
   }
@@ -85,8 +86,6 @@ export function UploadForm() {
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
   }
-
-  console.log(form.getValues())
 
   return (
     <Form {...form}>

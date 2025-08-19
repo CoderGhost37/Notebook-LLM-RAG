@@ -17,6 +17,11 @@ import { UrlForm } from './url-form'
 
 export function AddSourceModal() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  function handleClose() {
+    setIsModalOpen(false)
+  }
+
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogTrigger asChild>
@@ -46,13 +51,13 @@ export function AddSourceModal() {
           </TabsList>
 
           <TabsContent value="file" className="space-y-4">
-            <UploadForm />
+            <UploadForm onClose={handleClose} />
           </TabsContent>
           <TabsContent value="url" className="space-y-4">
-            <UrlForm />
+            <UrlForm onClose={handleClose} />
           </TabsContent>
           <TabsContent value="text" className="space-y-4">
-            <TextForm />
+            <TextForm onClose={handleClose} />
           </TabsContent>
         </Tabs>
       </DialogContent>

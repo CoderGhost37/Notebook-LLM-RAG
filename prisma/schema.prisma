@@ -9,15 +9,14 @@ datasource db {
 }
 
 model DataSource {
-  id       String     @id @default(cuid())
-  name     String
-  type     SourceType
-  fileType FileType
-  url      String?
-  text     String?
-  status   String
-  addedAt  DateTime   @default(now())
-  chunks   Int?
+  id        String     @id @default(cuid())
+  name      String
+  type      SourceType
+  fileType  FileType?
+  url       String?
+  text      String?
+  chunks    Int?
+  createdAt DateTime   @default(now())
 }
 
 enum FileType {
@@ -30,10 +29,4 @@ enum SourceType {
   file
   url
   text
-}
-
-enum Status {
-  processing
-  ready
-  error
 }
