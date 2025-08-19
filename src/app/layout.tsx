@@ -10,8 +10,9 @@ const roboto = Roboto({
 })
 
 export const metadata: Metadata = {
-  title: "RAG Assistant",
-  description: "Upload documents, give website links, give text as data sources, ask questions, and get AI-powered insights from your data sources",
+  title: 'RAG Assistant',
+  description:
+    'Upload documents, give website links, give text as data sources, ask questions, and get AI-powered insights from your data sources',
 }
 
 export default function RootLayout({
