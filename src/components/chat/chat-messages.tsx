@@ -69,32 +69,8 @@ export function ChatMessages({ messages, status, regenerate }: ChatMessagesProps
                       })}
                     </div>
                   </div>
-                  <div className="mt-1 flex justify-end gap-1">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
-                            onClick={() =>
-                              copyToClipboard(
-                                message.parts
-                                  .map((part) => (part.type === 'text' ? part.text : ''))
-                                  .join(' ')
-                              )
-                            }
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Copy message</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-
-                    {index !== 0 && status === 'ready' && message.role === 'assistant' && (
+                  {index !== 0 && (
+                    <div className="mt-1 flex justify-end gap-1">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -102,18 +78,44 @@ export function ChatMessages({ messages, status, regenerate }: ChatMessagesProps
                               variant="ghost"
                               size="sm"
                               className="h-6 w-6 p-0"
-                              onClick={() => regenerate({ messageId: message.id })}
+                              onClick={() =>
+                                copyToClipboard(
+                                  message.parts
+                                    .map((part) => (part.type === 'text' ? part.text : ''))
+                                    .join(' ')
+                                )
+                              }
                             >
-                              <RefreshCw className="h-3 w-3" />
+                              <Copy className="h-3 w-3" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Regenerate response</p>
+                            <p>Copy message</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                    )}
-                  </div>
+
+                      {status === 'ready' && message.role === 'assistant' && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                onClick={() => regenerate({ messageId: message.id })}
+                              >
+                                <RefreshCw className="h-3 w-3" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Regenerate response</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
